@@ -11,7 +11,7 @@ async function getResponse() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer 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`  // 替换为您的 API 密钥
+                "Authorization": `Bearer sk-lhB8xpgyRks00ue7Z5-03y751iZt_i_cgYRFWNx6gET3BlbkFJ4-wU2GoM6dyhJsl-efgn3ec3NP1BuLsahyVCsFFsgA`  // 替换为您的 API 密钥
             },
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",

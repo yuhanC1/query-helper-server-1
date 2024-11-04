@@ -1,17 +1,53 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-//const fetch = require('node-fetch'); // 确保已安装 node-fetch
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3'); // 使用 v3 的 S3 客户端
+// const fetch = require('node-fetch'); // 如果需要 fetch，请确保已安装 node-fetch
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 从环境变量中读取 OpenAI API 密钥
+// 从环境变量中读取 OpenAI 和 AWS API 密钥
 const apiKey = process.env.OPENAI_API_KEY;
+const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
+
+// 定义日志文件路径
+const logFilePath = path.join(__dirname, 'search_logs.json');
+
 // 中间件解析 JSON 数据
 app.use(express.json());
 
 // 提供静态文件
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 上传日志文件到 S3 的函数（使用 AWS SDK v3）
+async function uploadLogToS3() {
+    try {
+        const fileContent = fs.readFileSync(logFilePath);
+
+        const params = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: `logs/search_logs_${Date.now()}.json`, // 生成唯一文件名
+            Body: fileContent
+        };
+
+        const command = new PutObjectCommand(params);
+        const response = await s3.send(command);
+        console.log("Log file successfully uploaded to S3:", response);
+
+        // 上传成功后清空本地日志文件
+        fs.truncate(logFilePath, 0, (err) => {
+            if (err) console.error("Error clearing log file:", err);
+        });
+    } catch (error) {
+        console.error("Error uploading to S3:", error);
+    }
+}
 
 // 路由：记录搜索内容
 app.post('/api/log', (req, res) => {
@@ -19,12 +55,14 @@ app.post('/api/log', (req, res) => {
 
     // 保存记录到文件中
     const logData = { user_query, response_result, timestamp };
-    fs.appendFile('search_logs.json', JSON.stringify(logData) + '\n', (err) => {
+    fs.appendFile(logFilePath, JSON.stringify(logData) + '\n', (err) => {
         if (err) {
             console.error('Error writing to file', err);
             res.status(500).send({ status: 'error', message: 'Failed to log search' });
         } else {
             res.send({ status: 'success', message: 'Search logged successfully' });
+            // 每次记录成功后上传到 S3
+            uploadLogToS3();
         }
     });
 });
@@ -43,6 +81,7 @@ app.post('/api/chat', async (req, res) => {
             },
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
+                temperature: 0.1,
                 messages: [
                     { "role": "system", "content": "Provide a detailed answer with pros and cons in about 250 words, using bullet points and a balanced perspective." },
                     { "role": "user", "content": query }

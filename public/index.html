@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <!-- Link to CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Query Helper</h2>
+        <p>Please enter what you would like to learn about, and our helper will provide a detailed answer.</p>
+
+        <!-- Input field and submit button -->
+        <div class="input-container">
+            <input type="text" id="query" placeholder="Enter your question here">
+            <button onclick="getResponse()">Submit</button>
+        </div>
+
+        <!-- Display area for API response -->
+        <div id="response" class="response-box">The answer will appear here.</div>
+    </div>
+
+    <!-- Link to JavaScript file -->
+    <script src="assistant.js"></script>
+</body>
+</html>

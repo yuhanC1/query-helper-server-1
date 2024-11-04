@@ -1,4 +1,3 @@
-const apiKey = process.env.OPENAI_API_KEY;
 async function getResponse() {
     const query = document.getElementById("query").value;  // 获取用户输入
     const responseDiv = document.getElementById("response");
@@ -7,23 +6,16 @@ async function getResponse() {
     responseDiv.innerHTML = "Processing your request, please wait...";
 
     try {
-        // 调用 ChatGPT API 获取查询结果
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        // 调用后端的代理路由，而不是直接请求 OpenAI API
+        const response = await fetch("/api/chat", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`  // 替换为您的 API 密钥
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    { "role": "system", "content": "Provide a detailed answer with pros and cons in about 250 words, using bullet points and a balanced perspective." },
-                    { "role": "user", "content": `Please provide a detailed answer to the following question including both pros and cons, different sides, and a balanced viewpoint in about 250 words: ${query}` }
-                ]
-            })
+            body: JSON.stringify({ query: query })
         });
 
-        // 解析并显示 API 返回的数据
+        // 解析并显示后端返回的数据
         const data = await response.json();
         const answer = data.choices[0].message.content;
         responseDiv.innerHTML = answer.replace(/\n/g, "<br>");
@@ -39,7 +31,7 @@ async function getResponse() {
 
 // 将用户的搜索记录发送到后端
 async function logSearch(query, result) {
-    await fetch("http://localhost:3000/api/log", {
+    await fetch("/api/log", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

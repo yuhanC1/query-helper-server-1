@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 3000;
 
 // 从环境变量中读取 OpenAI API 密钥
 const apiKey = process.env.OPENAI_API_KEY;
-//const apiKey = 'sk-DPfc0d2IHs3jXBRkgMaztuFdJJigTrEpuU1KDiNqReT3BlbkFJoRQn4IOzWZI6_iRi6Hd693gU8-AC0Qhr9XWdp3hSYA';
 // 中间件解析 JSON 数据
 app.use(express.json());
 

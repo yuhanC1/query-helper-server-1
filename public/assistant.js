@@ -1,3 +1,4 @@
+const apiKey = process.env.OPENAI_API_KEY;
 async function getResponse() {
     const query = document.getElementById("query").value;  // 获取用户输入
     const responseDiv = document.getElementById("response");
@@ -11,7 +12,7 @@ async function getResponse() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer sk-lhB8xpgyRks00ue7Z5-03y751iZt_i_cgYRFWNx6gET3BlbkFJ4-wU2GoM6dyhJsl-efgn3ec3NP1BuLsahyVCsFFsgA`  // 替换为您的 API 密钥
+                "Authorization": `Bearer ${apiKey}`  // 替换为您的 API 密钥
             },
             body: JSON.stringify({
                 model: "gpt-3.5-turbo",
